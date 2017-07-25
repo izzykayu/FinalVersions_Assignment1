@@ -51,7 +51,7 @@ def stats(fin_li):  # fin_li is another name used in the definition of this func
 
 def main():
     while True:
-        dna_seq = input('Enter Sequence:\t')
+        dna_seq = input('Enter DNA Sequence (Enter DONE or done to finish capturing sequences):\t')
         if dna_seq == 'done' or dna_seq == 'DONE':
             print('\n\t\t\t\t\t\t**************')
             print('\nValid sequences:\t\t', seq_list)    # 2 tabs
@@ -65,7 +65,7 @@ def main():
         else:
             for letter in list(dna_seq):  # letter in list of input dna seq
                 if letter not in ['A', 'a', 'C', 'c', 'G', 'g', 'T', 't']:
-                    print(letter, 'is an invalid character.\n')
+                    print(letter, 'is an invalid character thus', dna_seq, 'is an invalid DNA seq.\n')
                     break
             else:
                 seq_list.append(dna_seq)
