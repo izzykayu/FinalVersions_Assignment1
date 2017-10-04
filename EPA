@@ -1,0 +1,646 @@
+---
+title: "EDA_255"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+---
+title: "EDA_IsabelMetzger"
+output: html_document
+---
+```{r}
+install.packages("plotly")
+```
+
+EXPLORATORY DATA ANALYSIS
+```{r}
+  # Load the tidyverse library
+library(plyr)
+  library(tidyverse)
+```
+```{r}
+# vaccinations <- read.csv('State_Specific_Influenza_Vaccination_Coverage_Among_Women_With_Live_Birth-_PRAMS__2009-10_Influenza_Season.csv')
+# str(vaccinations)
+# # use this for project
+```
+```{r}
+library(g.data)
+```
+```{r}
+CTaccidentaldrugdeaths <- read.csv('Accidental_Drug_Related_Deaths__2012-June_2017.csv')
+str(CTaccidentaldrugdeaths)
+```
+```{r}
+CTaccidentaldrugdeaths <- na.omit(CTaccidentaldrugdeaths)
+year <- format(as.Date(CTaccidentaldrugdeaths$Date, format="%m/%d/%Y"),"%Y")
+CTaccidentaldrugdeaths$Year <- as.factor(year)
+summary(CTaccidentaldrugdeaths)
+```
+```{r}
+library(RCurl)
+colnames(CTaccidentaldrugdeaths)
+summary(CTaccidentaldrugdeaths$Year)
+```
+
+ Residence.State   Residence.County  
+        :1917    HARTFORD  :784    
+ CT     :1590    NEW HAVEN :757      
+ UNKNOWN:  28              :695       
+ MA     :  14    FAIRFIELD :454      
+ NY     :  13    NEW LONDON:284      
+ FL     :   4    LITCHFIELD:175     
+ (Other):  14    (Other)   :431     
+```{r}
+library(ggthemes)
+str(CTaccidentaldrugdeaths)
+summary(CTaccidentaldrugdeaths)
+```
+
+```{r}
+#df <- data.frame(Stats=c("Min","1st Qu.","Median","Mean", "3rd Qu.", "Max"), Age=c(14,30,40,10,20))
+Death.City.summary <- data.frame(City=c("Hartford","New Haven", "Waterbury", "Bridgeport", "New Britain", "Norwich"), Deaths = c(371, 262, 253, 228, 152, 110))
+df2<- rbind(Death.City.summary, data.frame(City=c("Hartford","New Haven", "Waterbury", "Bridgeport", "New Britain", "Norwich"), Deaths = c(0, 0, 0, 0, 0, 0)))
+
+plotsummaryDeathCity <- ggplot(Death.City.summary, aes(x=City, y=Deaths)) + geom_line(data=df2, aes(y=Deaths, x=City))+ geom_point(shape= 20, size=2.75, col='red') + coord_flip() + labs(x="City of Death", y="Number of Deaths", title= "Drug Death Cities") + theme_wsj() + theme(
+  panel.background = element_rect(fill = "lightcyan",
+                                colour = "lightcyan",
+                                size = 0.25, linetype = "solid"),
+  panel.grid.major = element_line(size = 0.25, linetype = 'solid',
+                                colour = "white"), 
+  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "white"))
+
+plotsummaryDeathCity
+```
+```{r}
+Residence.City.summary <- data.frame(City=c("Hartford","Waterbury", "New Haven", "Bridgeport", "New Britain", "Bristol"), Deaths = c(371, 262, 253, 228, 152, 110))
+df2<- rbind(Residence.City.summary, data.frame(City=c("Hartford","Waterbury", "New Haven", "Bridgeport", "New Britain", "Bristol"), Deaths = c(0, 0, 0, 0, 0, 0)))
+
+PlotsummaryResidenceCity<- ggplot(Residence.City.summary, aes(x=City, y=Deaths)) + geom_line(data=df2, aes(y=Deaths, x=City)) + geom_point(size=2.75, col='mediumvioletred') + coord_flip() + labs(x="Cities with Highest Numbers of Resident Deaths", y="Number of Deaths", title= "Residents") + theme_wsj() + scale_colour_wsj("colors6", "") + theme(
+  panel.background = element_rect(fill = "lightblue",
+                                colour = "lightblue",
+                                size = 0.25, linetype = "solid"),
+  panel.grid.major = element_line(size = 0.25, linetype = 'solid',
+                                colour = "white"), 
+  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "white"))
+```
+```{r}
+CTaccidentaldrugdeathssex <- CTaccidentaldrugdeaths[CTaccidentaldrugdeaths$Sex == "Male" | CTaccidentaldrugdeaths$Sex =="Female" , ]
+CTaccidentaldrugdeathssexfemale <- CTaccidentaldrugdeathssex[CTaccidentaldrugdeathssex$Sex == 'Female',]
+summary(CTaccidentaldrugdeathssexfemale$Age)
+CTaccidentaldrugdeathsmale <-
+CTaccidentaldrugdeathssex[CTaccidentaldrugdeathssex$Sex == 'Male',]
+print("male")
+summary(CTaccidentaldrugdeathsmale$Age)
+sex_age_summary <- data.frame(Sex=c("Female","Female", "Female", "Female", "Female", "Female", "Male","Male", "Male", "Male", "Male", "Male"), Age = c(14, 32, 44, 43, 53, 81, 16, 31, 42, 42, 51, 87))
+sex_age_summary_median <- data.frame(Sex=c("Female", "Male"), Age=c(44, 42))
+
+```
+```{r}
+?shape
+```
+
+```{r}
+plotsummaryGenderAge <- ggplot(data=CTaccidentaldrugdeathssex, mapping=aes(x=CTaccidentaldrugdeathssex$Sex, y =CTaccidentaldrugdeathssex$Age)) + geom_violin() +  geom_dotplot(data=CTaccidentaldrugdeathssex, mapping=aes(x=CTaccidentaldrugdeathssex$Sex, y =CTaccidentaldrugdeathssex$Age, col=Sex),   # Use fill = Species here not in ggplot()
+                 binaxis = "y",         # which axis to bin along
+                 binwidth = 0.1,        # Minimal difference considered diffeerent
+                 stackdir = "center"    # Centered
+                 ) +
+    stat_summary(fun.y = median, fun.ymin = median, fun.ymax = median,
+                 geom = "crossbar", width = 0.9) + theme_wsj() + scale_colour_wsj("colors6", "") + geom_point(sex_age_summary_median, mapping=aes(x=Sex, y=Age), size=5.5, color='red') + geom_point(data=sex_age_summary, mapping = aes(x=sex_age_summary$Sex, y = sex_age_summary$Age), shape=21, fill="white", col="black", size=2.5) + labs(title = "Age of Death") + theme(legend.position="none") #+ abline(h =  44, col="blue") #+ # geom_point(mapping = aes(x=CTaccidentaldrugdeaths$Sex, y = age_death_median), size = .2, col= "red")
+# p <- ggplot(chickwts, aes(x=feed, y=weight)) +
+# labs(list(title = "Chicken weights after six weeks", x = "Feed Type", y = "Weight (g)"))
+# theme(axis.title.y = element_text(face="bold"), axis.text.y = element_text(face="bold"))
+
+```
+```{r}
+
+```
+
+```{r}
+#
+```
+
+```{r}
+ggplot(data=CTaccidentaldrugdeaths, mapping=aes(x=CTaccidentaldrugdeaths$Age)) + geom_histogram() + theme_wsj() + scale_colour_wsj("colors6", "") + coord_flip() + labs(title= "Age")
+```
+
+```{r}
+# ggplot(CTaccidentaldrugdeaths, mapping = aes(x = CTaccidentaldrugdeaths$Sex)) + geom_histogram() + theme_wsj() + scale_colour_wsj("colors6", "") 
+```
+
+```{r}
+library(tidyverse)
+as.tibble(CTaccidentaldrugdeaths)
+```
+```{r}
+library(dplyr)
+```
+```{r}
+colnames(CTaccidentaldrugdeaths)
+```
+```{r}
+state.unknown.removed <- CTaccidentaldrugdeaths[CTaccidentaldrugdeaths$Residence.State != "UNKNOWN",]
+summary(state.unknown.removed)
+```
+
+```{r}
+library(plyr)
+Death.City.freq <- count(CTaccidentaldrugdeaths, 'Death.City')
+DescriptionofInjury.freq <- count(CTaccidentaldrugdeaths, 'DescriptionofInjury')
+InjuryPlace.freq <- count(CTaccidentaldrugdeaths, 'InjuryPlace')
+Race.freq <- count(CTaccidentaldrugdeaths, 'Race')
+Residence.City.freq <- count(CTaccidentaldrugdeaths, 'Residence.City')
+Year.freq <- count(CTaccidentaldrugdeaths, 'Year')
+# Race.freq <- Race.freq[Race.freq$Race != "Native American, Other",]
+race.freq.summary <- data.frame(Race=c("Asian","White", "Black", "Hispanic, Black", "Hispanic, White"), Counts = c(22, 2853, 284, 11, 382))
+matrix_race_counts <- data.matrix(race.freq.summary$Counts)
+matrix_race_proportions <- prop.table(matrix_race_counts, margin=2)*100
+race.freq.summary <- data.frame(Race=c("Asian","White", "Black", "Hispanic, Black", "Hispanic, White"), Counts = c(22, 2853, 284, 11, 382), Percentage = matrix_race_proportions[,1], PercentageString = c("0.6%", "80.3%",  "8.0%", "0.3%", "10.8%"))
+print(race.freq.summary$Percentage, digits = 2) # 3580 total
+race_desc <- race.freq.summary[order(race.freq.summary$Counts, decreasing=FALSE),]
+Race.freq
+```
+```{r}
+barplot(race_desc$Percentage, names.arg=race_desc$Race, las=2,
+        horiz=TRUE, cex.names=0.75, cex.axis=0.7, xlim=c(0, 80), border=NA, space=0.4, col="red")
+title(xlab="Percentages")
+plotsummaryRace <- ggplot(race_desc, aes(x=reorder(Race, Percentage), y=Percentage)) +
+ geom_bar(stat="identity", fill="lightcyan", colour="black") + theme_wsj() + labs(title="Race and Ethnicity") + geom_label(aes(y = c(0.5,  1,  7, 12, 79), 
+                  label = race_desc$PercentageString), 
+              size = 3.84, col="red") + coord_flip()  #+ geom_text(race_desc, aes(labels = race_desc$PercentageString),vjust=-1)
+```
+
+```{r}
+drops <- c("Year","Age")
+categorical <- CTaccidentaldrugdeaths[ , !(names(CTaccidentaldrugdeaths) %in% drops)]
+summary(categorical)
+# do.call(cbind, lapply(CTaccidentaldrugdeaths, summary))
+```
+```{r}
+Residence.State.freq <-  count(CTaccidentaldrugdeaths, "Residence.State")
+Residence.State.Freq.Top4 <- Residence.State.freq[Residence.State.freq$Residence.State == "NY" | Residence.State.freq$Residence.State == "MA" | Residence.State.freq$Residence.State == "NJ" | Residence.State.freq$Residence.State == "FL",] 
+Residence.State.Freq.Top4
+CTaccidentaldrugdeaths.ResidenceState <- CTaccidentaldrugdeaths[CTaccidentaldrugdeaths$Residence.State == "CT" | CTaccidentaldrugdeaths$Residence.State == "NY" | CTaccidentaldrugdeaths$Residence.State == "MA" | CTaccidentaldrugdeaths$Residence.State == "NJ" | CTaccidentaldrugdeaths$Residence.State == "FL" | CTaccidentaldrugdeaths$Residence.State=="UNKNOWN", ]
+#f <- ggplot (CTaccidentaldrugdeaths.ResidenceState, aes(x = CTaccidentaldrugdeaths.ResidenceState$Residence.State, y =))
+# matrix_resstate_counts <- data.matrix(Residence.State.Freq.Top4$freq)
+# matrix_resstate_proportions <- prop.table(matrix_resstate_counts, margin=2)*100
+# matrix_resstate_proportions
+```
+```{r}
+plotsummarystateres <- ggplot(Residence.State.Freq.Top4, aes(x=Residence.State.Freq.Top4$Residence.State, y=Residence.State.Freq.Top4$freq)) + geom_col(col='mediumvioletred', fill="red", alpha=0.5) + coord_flip() + labs(title= "Sate of Residency") + theme_wsj()
+# Remove Washington, D.C.
+# Race.new <- CTaccidentaldrugdeaths[CTaccidentaldrugdeaths$Race != "District of Columbia",]
+# # Remove national averages
+# crime.new <- crime.new[crime.new$state != "United States ",]
+# # Box plot
+# boxplot(crime.new$robbery, horizontal=TRUE, main="Robbery Rates in US")
+# # Box plots for all crime rates
+# boxplot(crime.new[,-1], horizontal=TRUE, main="Crime Rates in US")
+```
+```{r}
+summary(CTaccidentaldrugdeaths)
+```
+
+```{r}
+# Residence.City.summary <- data.frame(City=c("Hartford","Waterbury", "New Haven", "Bridgeport", "New Britain", "Bristol"), Deaths = c(371, 262, 253, 228, 152, 110))
+# df2<- rbind(Residence.City.summary, data.frame(City=c("Hartford","Waterbury", "New Haven", "Bridgeport", "New Britain", "Bristol"), Deaths = c(0, 0, 0, 0, 0, 0)))
+# 
+# ggplot(Residence.City.summary, aes(x=City, y=Deaths)) + geom_line(data=df2, aes(y=Deaths, x=City)) + geom_point(size=2.75, col='mediumvioletred') + coord_flip() + labs(x="Cities with Highest Numbers of Resident Deaths", y="Number of Deaths", title= "Residents") + theme_wsj() + scale_colour_wsj("colors6", "") + theme(
+#   panel.background = element_rect(fill = "lightblue",
+#                                 colour = "lightblue",
+#                                 size = 0.25, linetype = "solid"),
+#   panel.grid.major = element_line(size = 0.25, linetype = 'solid',
+#                                 colour = "white"), 
+#   panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+#                                 colour = "white"))
+yr.summary <- data.frame(Year=c(2012, 2013, 2014, 2015, 2016, 2017
+), Records=c(355, 490, 557, 723, 917, 538))
+yr.summary.table <- data.matrix(yr.summary$Records)
+x <- prop.table(yr.summary.table)*100
+yr.summary.df <- data.frame(Year=c("2012", "2013", "2014", "2015", "2016", "2017"
+), Prop=c(9.9, 13.7, 15.6, 20.2, 25.6, 15.0))
+yr.summary.df2 <- rbind(yr.summary.df, data.frame(Year=c("2012", "2013", "2014", "2015", "2016", "2017"
+), Prop = c(0, 0, 0, 0, 0, 0)))
+yr.summary
+plotSummaryYearData <- ggplot(yr.summary.df, aes(x=Year, y=Prop)) + geom_line(data=yr.summary.df2, aes(x=Year, y=Prop)) + geom_point(size=yr.summary.df$Prop, col=yr.summary.df$Year) + coord_flip() + labs(title= "Deaths & Data Collected") + theme_wsj() + scale_colour_wsj("colors6", "") + geom_label(aes(x = Year, y = Prop), label= c(355, 490, 557, 723, 917, 538), size = 4.5, col="white", fill= "white", alpha=0.25)
+#   panel.background = element_rect(fill = "lightblue",
+#                                 colour = "lightblue",
+#                                 size = 0.25, linetype = "solid"),
+#   panel.grid.major = element_line(size = 0.25, linetype = 'solid',
+#                                 colour = "white"), 
+#   panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+#                                 colour = "white"))
+ # geom_point() + theme_wsj() + labs(title="Race and Ethnicity") + geom_label(aes(y = c(0.5,  1,  7, 12, 79), 
+ #                  label = race_desc$PercentageString), 
+ #              size = 3.84, col="red") + coord_flip()
+# ggplot(data=CTaccidentaldrugdeaths.yr.summary, mapping=aes(x=CTaccidentaldrugdeathssex$Sex, y =CTaccidentaldrugdeathssex$Age)) + geom_violin() +  geom_dotplot(data=CTaccidentaldrugdeathssex, mapping=aes(x=CTaccidentaldrugdeathssex$Sex, y =CTaccidentaldrugdeathssex$Age, col=Sex),   # Use fill = Species here not in ggplot()
+#                  binaxis = "y",         # which axis to bin along
+#                  binwidth = 0.1,        # Minimal difference considered diffeerent
+#                  stackdir = "center"    # Centered
+#                  ) +
+#     stat_summary(fun.y = median, fun.ymin = median, fun.ymax = median,
+#                  geom = "crossbar", width = 0.9) + theme_wsj() + scale_colour_wsj("colors6", "") + geom_point(sex_age_summary_median, mapping=aes(x=Sex, y=Age), size=5.5, color='red') + geom_point(data=sex_age_summary, mapping = aes(x=sex_age_summary$Sex, y = sex_age_summary$Age), shape=21, fill="white", col="black", size=2.5) + labs(title = "Age of Death") + theme(legend.position="none") 
+```
+
+```{r}
+
+```
+
+```{r}
+# Rotate
+# par(mar=c(5, 6, 2, 2))
+# barplot(CTaccidentaldrugdeaths$, names.arg=, las=2, horiz=TRUE, cex.names=0.6, cex.axis=0.8)
+```
+
+```{r}
+
+```
+
+```{r}
+# library(readxl)
+# phenotype <- read_xlsx("ISPC_phenotype data_inclusion.xlsx")
+# phenotype
+```
+```{r}
+# summary(phenotype)
+```
+```{r}
+# drugdeaths <- read.csv('Accidental_Drug_Related_Deaths__2012-June_2017.csv')
+# str(drugdeaths)
+```
+```{r}
+# summary(drugdeaths)
+```
+```{r}
+# OffLabelSideEffects <- read.table(file = '3003377s-offsides.tsv', sep = '\t', header = TRUE)
+# str(OffLabelSideEffects)
+```
+```{r}
+# as.tibble(OffLabelSideEffects)
+```
+
+EDA is informally a set of procedures where we try to obtain directed insights about the data. They may comprise of the following steps:
+
+Generate questions about the data.
+
+Search for answers by visualising, transforming, and modelling the data.
+
+Use the information to generate new questions.
+```{r}
+# continuous <- sapply(, is.numeric)
+# continuous    # drug deaths columns that have continuous/ numerical values vs discrete categorical data
+``` 
+
+
+In both bar charts and histograms, tall bars show the common values of a variable, and shorter bars show less-common values. Places that do not have bars reveal values that are not seen in this data. To turn this information into useful questions, we have to look for unexpected things:
+
+Which values are the most common? Why? Are they typical?
+
+
+Which values are rare? Why? Does that match your expectations?
+
+Can we see any unusual patterns? What might explain them?
+
+As an example, the histogram below suggests an interesting question:
+```{r}
+  # Find the distribution of the HDL levels in different health status
+  # ggplot(data = drugdeaths, mapping = aes(x = Age, colour = Sex)) +
+  #   geom_freqpoly()
+
+```
+Why poor health has lesser mean HDL?
+
+Bimodality suggests that subgroups exist in our data. To understand the subgroups, we need to ask:
+
+How are the observations within each cluster similar to each other, in terms of other variables?
+
+How are the observations in separate clusters different from each other, in terms of other variables?
+
+Do the clusters have biological significance?
+
+
+
+```{r}
+plotsummaryDeathCity
+PlotsummaryResidenceCity
+plotsummaryGenderAge + geom_label(aes(x = "Female", y =82), col="red", label="Max: 81") + geom_label(aes(x = "Female", y = 46), col="black", label="Medium: 44") + geom_label(aes(x = "Female", y = 16), col="red", label="Min: 14") + geom_label(aes(x="Male", y = 88), color = "navy", label="Max: 87") + geom_label(aes(x = "Male", y = 46), col="black", label="Medium: 42") +geom_label(aes(x = "Male", y = 18), col="red", label="Min: 16")
+plotsummaryRace
+plotSummaryYearData
+```
+```{r}
+install.packages("waffle")
+```
+
+```{r}
+library(waffle)
+deathlocationdf <- data.frame("Location"=c("Residence", "Hospital", "Hospice"," Covalescent Home","Other"), "Counts" = c(1854, 1175, 1, 3, 528))
+deathlocationdf
+deathlocationdf <- data.frame("Location"=c("Residence", "Hospital", "Hospice or Covalescent Home","Other"), "Counts" = c(1854, 1175, 4, 528), "Percentage"=c(521, 330, 1, 148))
+deathlocationdf
+sum(deathlocationdf$Percentage)
+loctable <- as.matrix(deathlocationdf$Counts)
+loctable <- prop.table(loctable)*100
+loctable
+```
+```{r}
+# summary(CTaccidentaldrugdeaths)
+library(waffle)
+parts <- c('Residence'=521, 'Hospital'=330, 'Covalescent Home/Hospice'=1,'Other'=148)
+
+waffle(parts, rows=25, size=1, colors=c("#009bda", "lightgreen", "firebrick1","#969696"), 
+       title="Location of Death", xlab = "One square == 1 Death") + theme_wsj() + geom_label(aes(x=10, y =15), label="1 Square == 1 Death")
+# parts <- c(`Un-breachednUS Population`=(318-11-79), `Premera`=11, `Anthem`=79)
+#  
+# waffle(parts, rows=12, size=1, colors=c("#969696", "#1879bf", "#009bda"), 
+#        title="Health records breaches as fraction of US Population", 
+#        xlab="One square == 1m ppl")
+```
+```{r}
+plotsummaryDeathCity
+```
+```{r}
+PlotsummaryResidenceCity
+```
+```{r}
+plotsummaryGenderAge
+```
+```{r}
+plotsummaryRace
+```
+```{r}
+plotSummaryYearData
+```
+
+```{r}
+summary(CTaccidentaldrugdeaths)
+```
+```{r}
+#
+```
+
+```{r}
+# NEED TO ADD VARIABLE NAMES
+multi.fun <- function(x) {cbind(freq = table(x), percentage = prop.table(table(x))*100)}
+# injuryplacefreq <- multi.fun(CTaccidentaldrugdeaths$InjuryPlace)
+# multi.fun(CTaccidentaldrugdeaths$AmendedMannerofDeath)
+# multi.fun(CTaccidentaldrugdeaths$CaseNumber)
+# multi.fun(CTaccidentaldrugdeaths$Date)
+# multi.fun(CTaccidentaldrugdeaths$Sex)
+# multi.fun(CTaccidentaldrugdeaths$Residence.City)
+# multi.fun(CTaccidentaldrugdeaths$Residence.State)
+# multi.fun(CTaccidentaldrugdeaths$Residence.County)
+# multi.fun(CTaccidentaldrugdeaths$Death.City)
+# multi.fun(CTaccidentaldrugdeaths$Death.State)
+# multi.fun(CTaccidentaldrugdeaths$Death.County)
+# multi.fun(CTaccidentaldrugdeaths$DeathLoc)
+# # multi.fun(CTaccidentaldrugdeaths$Location)
+# # multi.fun(CTaccidentaldrugdeaths$DescriptionofInjury)
+# multi.fun(CTaccidentaldrugdeaths$Hydrocodone)
+# # multi.fun(CTaccidentaldrugdeaths$ImmediateCauseA)
+# multi.fun(CTaccidentaldrugdeaths$Heroin)
+# multi.fun(CTaccidentaldrugdeaths$Cocaine)
+# multi.fun(CTaccidentaldrugdeaths$Fentanyl)
+# multi.fun(CTaccidentaldrugdeaths$EtOH)
+```
+```{r}
+print("FENTANYL")
+multi.fun(CTaccidentaldrugdeaths$Fentanyl)
+print("ALCOHOL IN SYSTEM AT TIME OF DEATH")
+multi.fun(CTaccidentaldrugdeaths$EtOH)
+```
+```{r}
+# one_EtOh <- ifelse(CTaccidentaldrugdeaths$EtOH=="Y" | CTaccidentaldrugdeaths$EtOH== "y", 1, 2)
+# multi.fun(one_EtOh)
+CTaccidentaldrugdeaths[CTaccidentaldrugdeaths==""] <- NA
+head(CTaccidentaldrugdeaths)
+sum(is.na(CTaccidentaldrugdeaths))
+library(tidyverse)
+library(purrr)
+
+nullVal <- CTaccidentaldrugdeaths %>%
+    map_df(function(x) sum(is.na(x))) %>%
+    gather(feature, num_nulls) %>%
+    print(n = 100)
+```
+```{r}
+colnames(CTaccidentaldrugdeaths)
+dim(CTaccidentaldrugdeaths)
+```
+```{r}
+require(data.table)
+CTaccidentaldrugdeaths <- as.data.frame(apply(CTaccidentaldrugdeaths,2,function(x)gsub('\\s+', '',x)))
+CTaccidentaldrugdeathsm <- as.matrix(CTaccidentaldrugdeaths)
+# CTaccidentaldrugdeathsm[c("Heroin","Cocaine","Fentanyl","Oxycodone","Oxymorphone","EtOH","Hydrocodone","Benzodiazepine","Methadone","Amphet","Tramad","Morphine..not.heroin.","Other","Any.Opioid")][is.na(CTaccidentaldrugdeathsm[c("Heroin","Cocaine","Fentanyl","Oxycodone","Oxymorphone","EtOH","Hydrocodone","Benzodiazepine","Methadone","Amphet","Tramad","Morphine..not.heroin.","Other","Any.Opioid")])] <- 0
+drugs <- c("Heroin","Cocaine","Fentanyl","Oxycodone","Oxymorphone","EtOH","Hydrocodone","Benzodiazepine","Methadone","Amphet","Tramad","Morphine..not.heroin.","Other","Any.Opioid")
+# trim.leading <- function (x)  sub("^\\s+", "", x)
+# 
+# # returns string w/o trailing whitespace
+# trim.trailing <- function (x) sub("\\s+$", "", x)
+# 
+# # returns string w/o leading or trailing whitespace
+# trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+
+for (col in drugs) set(CTaccidentaldrugdeaths, which(is.na(CTaccidentaldrugdeaths[[col]])), col, "N")
+# # update.mat <- function(dt, cols, criteria) {
+# #   require(data.table)
+# #   x <- as.data.frame(which(criteria==TRUE, arr.ind = TRUE))
+# #   y <- as.matrix(subset(x, x$col %in% which((names(dt) %in% cols), arr.ind = TRUE)))
+# #   y
+# # }
+# update.mat <- function(dt, cols, criteria) {
+#   require(data.table)
+#   x <- as.data.frame(which(criteria==TRUE, arr.ind = TRUE))
+#   y <- as.matrix(subset(x, x$col %in% which((names(dt) %in% cols), arr.ind = TRUE)))
+#   y
+# }
+# as.data.frame(CTaccidentaldrugdeathsm)
+# head(CTaccidentaldrugdeaths)
+# summary(CTaccidentaldrugdeaths)
+# dim(CTaccidentaldrugdeaths)
+
+for (col in drugs) set(CTaccidentaldrugdeaths, which(CTaccidentaldrugdeaths[[col]] == "y"), col, "Y")
+```
+```{r}
+summary(CTaccidentaldrugdeaths)
+```
+```{r}
+# CTaccidentaldrugdeaths[col] <- lapply(CTaccidentaldrugdeaths$col, factor, levels = c(0, 1), labels = c("N","Y"))
+# CTaccidentaldrugdeaths[CTaccidentaldrugdeaths == "Y"] <- "1"
+# summary(CTaccidentaldrugdeaths)
+heroin_freq_duo <- multi.fun(CTaccidentaldrugdeaths$Heroin)
+heroin_freq_duo
+sum(1933 + 1645 + 3)
+sum(997 + 2584)
+```
+```{r}
+cocaine_freq_duo <- multi.fun(CTaccidentaldrugdeaths$Cocaine)
+fentanyl_freq_duo <- as.data.frame(multi.fun(CTaccidentaldrugdeaths$Fentanyl))
+```
+
+```{r}
+cocaine_freq_duo <- multi.fun(CTaccidentaldrugdeaths$Cocaine)
+fentanyl_freq_duo <- as.data.frame(multi.fun(CTaccidentaldrugdeaths$Fentanyl))
+oxycodone_freq_duo <- as.data.frame(multi.fun(CTaccidentaldrugdeaths$Oxycodone))
+oxymorphone_freq_duo <- as.data.frame(multi.fun(CTaccidentaldrugdeaths$Oxymorphone))
+alcohol_freq_duo <- as.data.frame(multi.fun(CTaccidentaldrugdeaths$EtOH))
+
+Hydrocodonefd <- as.data.frame(multi.fun(CTaccidentaldrugdeaths$Hydrocodone))
+
+Benzodiazepinefd <- as.data.frame(multi.fun(CTaccidentaldrugdeaths$Benzodiazepine))
+
+Methadonefd <- as.data.frame(multi.fun(CTaccidentaldrugdeaths$Methadone))
+
+Amphet <- as.data.frame(multi.fun(CTaccidentaldrugdeaths$Amphet))
+
+Tramad <- as.data.frame(multi.fun(CTaccidentaldrugdeaths$Tramad))
+
+Morphine..not.heroin.fd <- as.data.frame(multi.fun(CTaccidentaldrugdeaths$Morphine..not.heroin.))
+
+Otherfd <- as.data.frame(multi.fun(CTaccidentaldrugdeaths$Other))
+
+Any.Opioidfd<- as.data.frame(multi.fun(CTaccidentaldrugdeaths$Any.Opioid))
+```
+```{r}
+fentanyl_freq_duo
+sum(fentanyl_freq_duo$freq) #1113
+oxycodone_freq_duo
+sum(oxycodone_freq_duo$freq)
+oxymorphone_freq_duo
+sum(oxymorphone_freq_duo$freq)
+alcohol_freq_duo
+sum(alcohol_freq_duo$freq)
+Hydrocodonefd
+sum(Hydrocodonefd$freq)
+Benzodiazepinefd
+sum(Benzodiazepinefd$freq)
+Methadonefd
+sum(Methadonefd$freq)
+Amphet
+sum(Amphet$freq)
+Tramad
+sum(Tramad$freq)
+Morphine..not.heroin.fd
+sum(Morphine..not.heroin.fd$freq)
+Otherfd
+sum(Otherfd$freq)
+Any.Opioidfd
+sum(Any.Opioidfd$freq)
+
+```
+```{r}
+oxymorphone_freq_duo
+alcohol_freq_duo
+Hydrocodonefd
+Benzodiazepinefd
+Methadonefd
+Amphet
+Tramad
+```
+
+```{r}
+Drug_Names <- c("Heroin","Cocaine", "Fentanyl","Oxycodone","Oxymorphone","EtOH","Hydrocodone","Benzodiazepine","Methadone","Amphet","Tramad")
+                # ,"Other","Any.Opioid")
+counts_drugs <- c(1933, 997, 1113, 491, 95, 772, 97, 883, 336, 81, 79)
+counts_drugs_ordered <- sort(counts_drugs, decreasing = TRUE)
+sum(counts_drugs_ordered)
+counts_drugs_ordered
+library(plyr)
+matrix_drug_proportions <- prop.table(as.matrix(counts_drugs), margin=2)*100
+matrix_drug_proportions
+drugs_freq <- data.frame("Drug"=Drug_Names, "Appearances"=counts_drugs,"Percentage"=matrix_drug_proportions[,1])
+drugs_freq
+drugs_prop <- c(28.1, 14.5, 16.2, 7.1, 1.4, 11.2, 1.4, 12.8, 4.9, 1.2)
+```
+```{r}
+install.packages("fields")
+```
+
+```{r}
+source("lib/square-pie-chart.R")
+#plot(c(0,100), c(0,100), type="n", xlab="", ylab="", las=1, bty="n", main="Legends")
+squarePie(counts_drugs_ordered, col.grid='burlywood4', main="Drug Appearances in Deaths: 1 Square =~ 69 Appearances", col.border="burlywood4", col = c("saddlebrown", "gold1", "deeppink3", "gray29", "lightslateblue", "firebrick", "springgreen3","purple3", "darkorange", "pink3","turquoise4"))# + geom_label(label= "1 square represents approximately 69 appearances")
+# Just color using symbol
+# Blank plot window
+# legend(0, 100, pch=15, col=c("blue", "orange", "green", "cyan"), legend=c("First", "Second", "Third", "Fourth"))
+library(fields)
+x = 1:10
+y = 1:15
+z = outer( x,y,"+") 
+image.plot(x, y, z)
+```
+
+```{r}
+# library(readxl)
+# excel_sheets("ISPC_phenotype data_inclusion.xlsx")
+# phenotype <- read_excel("ISPC_phenotype data_inclusion.xlsx", 1)
+# str(phenotype)
+# returns string w/o leading whitespace
+```
+```{r}
+# colnames(phenotype)
+```
+```{r}
+# multi.fun(phenotype$`Race (self-reported)`)
+```
+```{r}
+# multi.fun(phenotype$`Race (OMB)`)
+```
+```{r}
+# removal_ <- phenotype[phenotype$`Did patient commit suicide during study?` == 0 | phenotype$`Did patient commit suicide during study?` == 1 ,]
+# multi.fun(removal_$`Did patient commit suicide during study?`)
+# head(removal_)
+# tail(removal_)
+```
+```{r}
+# multi.fun(removal_$`Race (OMB)`)
+```
+```{r}
+# library(waffle)
+# parts <- c('Asian'=568, 'Black or African American'=330, 'Other'=3,'Unknown'=11, 'White'=280)
+# 
+# waffle(parts, rows=20, size=1, colors=c("#009bda", "lightgreen", "firebrick1","#969696", "blue"), 
+#        title="Race of Study Participants", xlab = "One square == 1 Participant") + theme_wsj()
+```
+_Clinical Trial Race Problem: This study specifically reached out to participants of color. However, most clinical studies do not look like this. Non-white participants make up less than 1 percent of all clinical trial participants <Cite>_
+
+```{r}
+
+CTaccidentaldrugdeaths$day <- weekdays(as.Date(CTaccidentaldrugdeaths$Date))
+freq_matrix_day <- multi.fun(CTaccidentaldrugdeaths$day)
+as.data.frame(freq_matrix_day)
+
+# not a significant day of the week where 
+```
+```{r}
+class(multi.fun(CTaccidentaldrugdeaths$Year))
+summary(CTaccidentaldrugdeaths$Year)
+
+```
+
+
+
